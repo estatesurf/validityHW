@@ -12,13 +12,14 @@ public class App {
     public static String FROM = "From:";
     public static String SUBJECT = "Subject:";
     public static String DATE = "Date:";
-    public static String OUTPUTFILENAME = "results.txt";
-    public static String INPUTFILENAME = "sampleEmails.tar.gz";
-    public static String EMAILWORKINGDIR = "emailsDir";
+    public static String OUTPUT_FILENAME = "results.txt";
+    public static String INPUT_FILENAME = "sampleEmails.tar.gz";
+    public static String EMAIL_WORKING_DIR = "emailsDir";
+    public static String EXPECTED_ARCHIVE_STRUCTURE = "\\sampleEmails\\smallset";
 
     public static void main(String[] args) {
-        App app = new App(EMAILWORKINGDIR);
-        File tarball = new File(INPUTFILENAME);
+        App app = new App(EMAIL_WORKING_DIR);
+        File tarball = new File(INPUT_FILENAME);
         try {
             String newTarFile = app.decompressGzip(tarball, app.getRootPath());
             File tarFile = new File(newTarFile);
@@ -27,7 +28,7 @@ public class App {
             e.printStackTrace();
         }
 
-        setupOutputFile(OUTPUTFILENAME);
+        setupOutputFile(OUTPUT_FILENAME);
 
         app.iterateOverFiles();
 
@@ -47,7 +48,7 @@ public class App {
 
 
     public void iterateOverFiles() {
-        String targetFile = EMAILWORKINGDIR + "\\sampleEmails\\smallset";
+        String targetFile = EMAIL_WORKING_DIR + EXPECTED_ARCHIVE_STRUCTURE;
         File f = new File(targetFile);
         BufferedReader br = null;
 
@@ -176,7 +177,7 @@ public class App {
    }
 
    private static void writeLineToOutputFile(String line) {
-       System.out.println("Writing to " + OUTPUTFILENAME + " ==> " + line + "\n"); 
+       System.out.println("Writing to " + OUTPUT_FILENAME + " ==> " + line + "\n"); 
        try {
            writer.write(line);
            writer.write("\r\n");   // write new line
