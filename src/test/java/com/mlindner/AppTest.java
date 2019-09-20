@@ -21,4 +21,8 @@ public class AppTest {
         app.setRootPath(ROOT_PATH);
         Assert.assertEquals(ROOT_PATH, app.getRootPath());
     }
+
+    @Test
+    public void setRootPath() {
+    }
 }

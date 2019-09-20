@@ -1,3 +1,5 @@
+package com.mlindner;
+
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.utils.IOUtils;
@@ -91,9 +93,9 @@ public class App {
         String from = "", subject = "", date = "";
 
         //Setup search patterns
-        Pattern fromPattern = Pattern.compile(FROM + " .*<(.*)>");
-        Pattern subjectPattern = Pattern.compile(SUBJECT + " (.*)");
-        Pattern datePattern = Pattern.compile(DATE + " (.*)");
+        Pattern fromPattern = Pattern.compile("From: .*<(.*)>");
+        Pattern subjectPattern = Pattern.compile("Subject: (.*)");
+        Pattern datePattern = Pattern.compile("Date: (.*)");
 
         try {
             String line;
