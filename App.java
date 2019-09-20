@@ -14,9 +14,10 @@ public class App {
     public static String DATE = "Date:";
     public static String OUTPUTFILENAME = "results.txt";
     public static String INPUTFILENAME = "sampleEmails.tar.gz";
+    public static String EMAILWORKINGDIR = "emailsDir";
 
     public static void main(String[] args) {
-        App app = new App("");
+        App app = new App(EMAILWORKINGDIR);
         File tarball = new File(INPUTFILENAME);
         try {
             String newTarFile = app.decompressGzip(tarball, app.getRootPath());
@@ -46,7 +47,7 @@ public class App {
 
 
     public void iterateOverFiles() {
-        String targetFile = "smallset\\sampleEmails\\smallset";
+        String targetFile = EMAILWORKINGDIR + "\\sampleEmails\\smallset";
         File f = new File(targetFile);
         BufferedReader br = null;
 
