@@ -13,10 +13,11 @@ public class App {
     public static String SUBJECT = "Subject:";
     public static String DATE = "Date:";
     public static String OUTPUTFILENAME = "results.txt";
+    public static String INPUTFILENAME = "sampleEmails.tar.gz";
 
     public static void main(String[] args) {
-        App app = new App("smallset");
-        File tarball = new File("sampleEmails.tar.gz");
+        App app = new App("");
+        File tarball = new File(INPUTFILENAME);
         try {
             String newTarFile = app.decompressGzip(tarball, app.getRootPath());
             File tarFile = new File(newTarFile);
@@ -25,19 +26,11 @@ public class App {
             e.printStackTrace();
         }
 
-        //try {
-            setupOutputFile(OUTPUTFILENAME);
-        //} catch (IOException e) {
-            //e.printStackTrace();
-        //}
+        setupOutputFile(OUTPUTFILENAME);
 
         app.iterateOverFiles();
 
-        //try {
-            closeOutputFile();
-        //} catch (IOException e) {
-            //e.printStackTrace();
-        //}
+        closeOutputFile();
     }
 
     private String rootPath;
@@ -64,9 +57,7 @@ public class App {
             if(file.isFile()) {
                 try {
                     br = new BufferedReader(new FileReader(file));
-                    String outputString = file.getAbsolutePath() + "|" + processFile(br);
-                    System.out.println("\nWriting" + outputString + " to " + OUTPUTFILENAME + "\n"); 
-                    writeLineToOutputFile(outputString);
+                    writeLineToOutputFile(file.getName() + " | " + processFile(br));
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 }
@@ -114,7 +105,7 @@ public class App {
             e.printStackTrace();
         }
 
-        return String.format("%s|%s|%s", from, subject, date);
+        return String.format("%s | %s | %s ", from, subject, date);
     }
 
 
@@ -177,13 +168,14 @@ public class App {
 
    private static void setupOutputFile(String filename) {
        try {
-           writer = new FileWriter(filename, true);
+           writer = new FileWriter(filename, false);
        } catch (IOException e) {
            e.printStackTrace();
        }
    }
 
    private static void writeLineToOutputFile(String line) {
+       System.out.println("Writing to " + OUTPUTFILENAME + " ==> " + line + "\n"); 
        try {
            writer.write(line);
            writer.write("\r\n");   // write new line
