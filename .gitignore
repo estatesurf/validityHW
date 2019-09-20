@@ -1,0 +1,13 @@
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### Build ###
+target
+
+### ignore runtime stuff ###
+emailsDir
+results.txt
+sampleEmails.tar
