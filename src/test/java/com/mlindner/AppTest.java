@@ -16,7 +16,9 @@ public class AppTest {
 
     @Test
     public void processFile() {
+        String args[] = null;
         App app = new App();
+        app.main(args);
         BufferedReader br = null;
         String filenameSTR = EMAIL_WORKING_DIR + EXPECTED_ARCHIVE_STRUCTURE + "\\20110401_aamarketinginc_14456749_html.msg"; 
         try {
