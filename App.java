@@ -12,6 +12,7 @@ public class App {
     public static String FROM = "From:";
     public static String SUBJECT = "Subject:";
     public static String DATE = "Date:";
+    public static String OUTPUTFILENAME = "results.txt";
 
     public static void main(String[] args) {
         App app = new App("smallset");
@@ -23,11 +24,24 @@ public class App {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        //try {
+            setupOutputFile(OUTPUTFILENAME);
+        //} catch (IOException e) {
+            //e.printStackTrace();
+        //}
+
         app.iterateOverFiles();
+
+        //try {
+            closeOutputFile();
+        //} catch (IOException e) {
+            //e.printStackTrace();
+        //}
     }
 
     private String rootPath;
-
+    private static FileWriter writer;
 
     App() {
 
@@ -50,7 +64,9 @@ public class App {
             if(file.isFile()) {
                 try {
                     br = new BufferedReader(new FileReader(file));
-                    System.out.println(file.getAbsolutePath() + "|" + processFile(br));
+                    String outputString = file.getAbsolutePath() + "|" + processFile(br);
+                    System.out.println("\nWriting" + outputString + " to " + OUTPUTFILENAME + "\n"); 
+                    writeLineToOutputFile(outputString);
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 }
@@ -138,19 +154,18 @@ public class App {
         TarArchiveInputStream tis = new TarArchiveInputStream(fis);
         TarArchiveEntry tarEntry = null;
 
-        // tarIn is a TarArchiveInputStream
         while ((tarEntry = tis.getNextTarEntry()) != null) {
             File outputFile = new File(output + File.separator + tarEntry.getName());
 
             if (tarEntry.isDirectory()) {
 
-                System.out.println("outputFile Directory ---- "
+                System.out.println("email Directory ---- "
                         + outputFile.getAbsolutePath());
                 if (!outputFile.exists()) {
                     outputFile.mkdirs();
                 }
             } else {
-                System.out.println("outputFile File ---- " + outputFile.getAbsolutePath());
+                System.out.println("email File created ---- " + outputFile.getAbsolutePath());
                 outputFile.getParentFile().mkdirs();
                 FileOutputStream fos = new FileOutputStream(outputFile);
                 IOUtils.copy(tis, fos);
@@ -159,5 +174,30 @@ public class App {
         }
         tis.close();
     }
+
+   private static void setupOutputFile(String filename) {
+       try {
+           writer = new FileWriter(filename, true);
+       } catch (IOException e) {
+           e.printStackTrace();
+       }
+   }
+
+   private static void writeLineToOutputFile(String line) {
+       try {
+           writer.write(line);
+           writer.write("\r\n");   // write new line
+       } catch (IOException e) {
+           e.printStackTrace();
+       }
+   }
+
+   private static void closeOutputFile() {
+       try {
+           writer.close();
+       } catch (IOException e) {
+           e.printStackTrace();
+       }
+   }
 
 }
