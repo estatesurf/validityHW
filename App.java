@@ -91,9 +91,9 @@ public class App {
         String from = "", subject = "", date = "";
 
         //Setup search patterns
-        Pattern fromPattern = Pattern.compile("From: .*<(.*)>");
-        Pattern subjectPattern = Pattern.compile("Subject: (.*)");
-        Pattern datePattern = Pattern.compile("Date: (.*)");
+        Pattern fromPattern = Pattern.compile(FROM + " .*<(.*)>");
+        Pattern subjectPattern = Pattern.compile(SUBJECT + " (.*)");
+        Pattern datePattern = Pattern.compile(DATE + " (.*)");
 
         try {
             String line;
