@@ -15,10 +15,15 @@ public class App {
     public static String OUTPUT_FILENAME = "results.txt";
     public static String INPUT_FILENAME = "sampleEmails.tar.gz";
     public static String EMAIL_WORKING_DIR = "emailsDir";
+
+    //The "expected" structure of tar files should really be determined at run time as archive structures may change
     public static String EXPECTED_ARCHIVE_STRUCTURE = "\\sampleEmails\\smallset";
 
     public static void main(String[] args) {
+        //Pick a dir to stage the working area for the email archive
         App app = new App(EMAIL_WORKING_DIR);
+
+        //open up the email archive into the working area dir
         File tarball = new File(INPUT_FILENAME);
         try {
             String newTarFile = app.decompressGzip(tarball, app.getRootPath());
@@ -28,10 +33,13 @@ public class App {
             e.printStackTrace();
         }
 
+        //create/replace the results file
         setupOutputFile(OUTPUT_FILENAME);
 
+        //parse each email from the email archive
         app.iterateOverFiles();
 
+        //cleanup and exit
         closeOutputFile();
     }
 
@@ -48,12 +56,14 @@ public class App {
 
 
     public void iterateOverFiles() {
+        //assemble path to where the actual email files will be.  
         String targetFile = EMAIL_WORKING_DIR + EXPECTED_ARCHIVE_STRUCTURE;
         File f = new File(targetFile);
         BufferedReader br = null;
 
         File[] files = f.listFiles();
 
+        //iterate over and process each email file
         for(File file : files) {
 
             if(file.isFile()) {
@@ -80,6 +90,7 @@ public class App {
 
         String from = "", subject = "", date = "";
 
+        //Setup search patterns
         Pattern fromPattern = Pattern.compile("From: .*<(.*)>");
         Pattern subjectPattern = Pattern.compile("Subject: (.*)");
         Pattern datePattern = Pattern.compile("Date: (.*)");
@@ -87,6 +98,8 @@ public class App {
         try {
             String line;
 
+            //look for patterns until EOF reached
+            //NOTE: This code assumes only one instance of each "pattern" per file exists
             while((line = input.readLine()) != null) {
 
                 Matcher m = fromPattern.matcher(line);
@@ -107,6 +120,7 @@ public class App {
             e.printStackTrace();
         }
 
+        //return the result of pattern search.
         return String.format("%s | %s | %s ", from, subject, date);
     }
 
@@ -123,7 +137,6 @@ public class App {
         String[] filenameParts = input.getName().split("\\.gz");
         String filenamePrefix = filenameParts[0];
         String slash = System.getProperty("file.separator");
-        String targetFile2 = targetDir + slash + filenamePrefix;
         String targetFile = filenamePrefix;
         File output = new File(targetFile);
         try (GZIPInputStream in = new GZIPInputStream(new FileInputStream(input))) {
