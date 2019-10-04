@@ -9,20 +9,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
-
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
-import java.util.ArrayList;
-import java.util.List;
-
-
 public class App {
 
-    public static Integer MAXTHREADS = 10;
     public static String FROM = "From:";
     public static String SUBJECT = "Subject:";
     public static String DATE = "Date:";
@@ -30,18 +18,22 @@ public class App {
     public static String INPUT_FILENAME = "sampleEmails.tar.gz";
     public static String EMAIL_WORKING_DIR = "emailsDir";
 
-    private static final ExecutorService threadpool = Executors.newFixedThreadPool(MAXTHREADS);
-
     //The "expected" structure of tar files should really be determined at run time as archive structures may change
     public static String EXPECTED_ARCHIVE_STRUCTURE = "\\sampleEmails\\smallset";
 
-    public static void main(String[] args) throws InterruptedException, ExecutionException {
+    public static void main(String[] args) {
         //Pick a dir to stage the working area for the email archive
         App app = new App(EMAIL_WORKING_DIR);
 
-        List<String> tarBallPaths= app.createListOfTarballs();
-
-        tarBallPaths.parallelStream().forEach(App::decompressArchive);
+        //open up the email archive into the working area dir
+        File tarball = new File(INPUT_FILENAME);
+        try {
+            String newTarFile = app.decompressGzip(tarball, app.getRootPath());
+            File tarFile = new File(newTarFile);
+            app.unTarFile(tarFile, app.getRootPath());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         //create/replace the results file
         setupOutputFile(OUTPUT_FILENAME);
@@ -52,9 +44,6 @@ public class App {
         //cleanup and exit
         closeOutputFile();
     }
-
-    //private static class ProcessTarball implements Callable {
-    //}
 
     private String rootPath;
     private static FileWriter writer;
@@ -67,30 +56,6 @@ public class App {
         setRootPath(rootPath);
     }
 
-    public static void decompressArchive(String path)
-    {
-        File tarball = new File(path);
-        try
-        {
-            String newTarFile = decompressGzip(tarball, EMAIL_WORKING_DIR);
-            File tarFile = new File(newTarFile);
-            unTarFile(tarFile, EMAIL_WORKING_DIR);
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public List<String> createListOfTarballs()
-    {
-        String targetFile = EMAIL_WORKING_DIR;
-        File f = new File(targetFile);
-        List<String> filePath = new ArrayList<>();
-        for (File file : f.listFiles()) {
-           filePath.add(file.getPath());
-        }
-        return filePath;
-    }
 
     public void iterateOverFiles() {
         //assemble path to where the actual email files will be.  
@@ -134,11 +99,10 @@ public class App {
 
         try {
             String line;
-            boolean foundEverything = false;
 
             //look for patterns until EOF reached
             //NOTE: This code assumes only one instance of each "pattern" per file exists
-            while(!foundEverything && ((line = input.readLine()) != null)) {
+            while((line = input.readLine()) != null) {
 
                 Matcher m = fromPattern.matcher(line);
                 if(m.find()) {
@@ -151,10 +115,6 @@ public class App {
                 m = datePattern.matcher(line);
                 if(m.find()) {
                     date = m.group(1);
-                }
-                if (!from.isEmpty() && !subject.isEmpty() && !date.isEmpty())
-                {
-                    foundEverything = true;
                 }
             }
 
@@ -175,7 +135,7 @@ public class App {
         this.rootPath = rootPath;
     }
 
-    private static String decompressGzip(File input, String targetDir) throws IOException {
+    private String decompressGzip(File input, String targetDir) throws IOException {
         String[] filenameParts = input.getName().split("\\.gz");
         String filenamePrefix = filenameParts[0];
         String slash = System.getProperty("file.separator");
@@ -193,7 +153,7 @@ public class App {
         return targetFile;
     }
 
-    private static void unTarFile(File tarFile, String targetDir) throws IOException {
+    private void unTarFile(File tarFile, String targetDir) throws IOException {
         String[] filenameParts = tarFile.getName().split("\\.tar");
         String filenamePrefix = filenameParts[0];
         String slash = System.getProperty("file.separator");
